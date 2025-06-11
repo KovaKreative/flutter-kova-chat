@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "796622223332",
+    "project_id": "flutter-kova-chat",
+    "storage_bucket": "flutter-kova-chat.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:796622223332:android:26ebf99bb373fa2c2bb9f1",
+        "android_client_info": {
+          "package_name": "com.example.flutter_kova_chat"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCUUoSEMRlG4wObStgqH9mobjD1b_HQErk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
