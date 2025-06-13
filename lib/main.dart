@@ -1,42 +1,97 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:http/http.dart' as http;
 
-import 'firebase_options.dart';
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-
-  runApp(MyApp());
+void main() {
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final FirebaseFirestore firestore = FirebaseFirestore.instance;
-
-  MyApp({super.key});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Firestore Test',
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Firestore Test')),
-        body: Center(
-          child: ElevatedButton(
-            onPressed: () async {
-              try {
-                await firestore.collection('test_collection').add({
-                  'timestamp': FieldValue.serverTimestamp(),
-                  'message': 'Hello Firestore!',
-                });
-                debugPrint('✅ Document successfully written!');
-              } catch (e) {
-                debugPrint('❌ Firestore write failed: $e');
-              }
-            },
-            child: const Text('Write to Firestore'),
-          ),
+    return const MaterialApp(home: PaymentTestScreen());
+  }
+}
+
+class PaymentTestScreen extends StatefulWidget {
+  const PaymentTestScreen({super.key});
+
+  @override
+  State<PaymentTestScreen> createState() => _PaymentTestScreenState();
+}
+
+class _PaymentTestScreenState extends State<PaymentTestScreen> {
+  String? clientSecret;
+  bool isLoading = false;
+  String? error;
+
+  Future<void> createPaymentIntent() async {
+    setState(() {
+      isLoading = true;
+      error = null;
+    });
+
+    final url = Uri.parse(
+      'https://kova-chat-backend.vercel.app/api/create-payment-intent',
+    );
+
+    try {
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'amount': 5000, // amount in cents ($50.00)
+          'currency': 'usd',
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        setState(() {
+          clientSecret = data['clientSecret'];
+        });
+      } else {
+        setState(() {
+          error = 'Failed with status code: ${response.statusCode}';
+        });
+        print('Status code: ${response.statusCode}');
+        print('Response body: ${response.body}');
+      }
+    } catch (e) {
+      setState(() {
+        error = 'Error: $e';
+      });
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Stripe Payment Intent Test')),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (isLoading) const CircularProgressIndicator(),
+            if (error != null) ...[
+              Text(error!, style: const TextStyle(color: Colors.red)),
+              const SizedBox(height: 16),
+            ],
+            ElevatedButton(
+              onPressed: isLoading ? null : createPaymentIntent,
+              child: const Text('Create Payment Intent'),
+            ),
+            const SizedBox(height: 20),
+            if (clientSecret != null)
+              SelectableText('Client Secret:\n$clientSecret'),
+          ],
         ),
       ),
     );
