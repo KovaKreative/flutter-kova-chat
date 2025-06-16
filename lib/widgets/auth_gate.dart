@@ -14,7 +14,7 @@ class AuthGate extends StatelessWidget {
         if (!auth.isLoggedIn) {
           return const LoginScreen();
         } else {
-          return const MainScaffold(); // Handles tabs + inner screens
+          return const MainScaffold();
         }
       },
     );
