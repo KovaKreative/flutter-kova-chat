@@ -1,43 +1,83 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_kova_chat/providers/auth_provider.dart';
+import 'package:flutter_kova_chat/widgets/auth_gate.dart';
+import 'package:provider/provider.dart';
 
-import 'firebase_options.dart';
+import 'providers/cart_provider.dart';
+
+var kColorScheme = ColorScheme.fromSeed(
+  seedColor: const Color.fromARGB(255, 30, 113, 90),
+);
+
+var kDarkColorScheme = ColorScheme.fromSeed(
+  brightness: Brightness.dark,
+  seedColor: const Color.fromARGB(255, 71, 36, 152),
+);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(); // You can pass options if not using default config
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final FirebaseFirestore firestore = FirebaseFirestore.instance;
-
-  MyApp({super.key});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Firestore Test',
-      home: Scaffold(
-        appBar: AppBar(title: const Text('Firestore Test')),
-        body: Center(
-          child: ElevatedButton(
-            onPressed: () async {
-              try {
-                await firestore.collection('test_collection').add({
-                  'timestamp': FieldValue.serverTimestamp(),
-                  'message': 'Hello Firestore!',
-                });
-                debugPrint('✅ Document successfully written!');
-              } catch (e) {
-                debugPrint('❌ Firestore write failed: $e');
-              }
-            },
-            child: const Text('Write to Firestore'),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+      ],
+      child: MaterialApp(
+        title: 'Kova Chat',
+        darkTheme: ThemeData.dark().copyWith(
+          colorScheme: kDarkColorScheme,
+          appBarTheme: const AppBarTheme().copyWith(
+            backgroundColor: kDarkColorScheme.onPrimary,
+            foregroundColor: kDarkColorScheme.primary,
+            centerTitle: true,
+          ),
+          cardTheme: CardThemeData().copyWith(
+            color: kDarkColorScheme.secondaryContainer,
+            margin: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: kDarkColorScheme.primaryContainer,
+            ),
           ),
         ),
+        theme: ThemeData().copyWith(
+          // scaffoldBackgroundColor: const Color.fromARGB(255, 193, 175, 255),
+          colorScheme: kColorScheme,
+          appBarTheme: const AppBarTheme().copyWith(
+            backgroundColor: kColorScheme.primary,
+            foregroundColor: kColorScheme.onPrimary,
+            centerTitle: true,
+          ),
+          cardTheme: CardThemeData().copyWith(
+            color: kColorScheme.primaryFixed,
+            margin: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: kColorScheme.primaryContainer,
+            ),
+          ),
+          textTheme: ThemeData().textTheme.copyWith(
+            bodyMedium: TextStyle(color: kColorScheme.onPrimaryFixed),
+          ),
+          iconTheme: ThemeData().iconTheme.copyWith(
+            color: kColorScheme.onPrimaryFixed,
+          ),
+        ),
+        themeMode: ThemeMode.dark,
+        home: const AuthGate(),
+        debugShowCheckedModeBanner: false,
       ),
     );
   }
