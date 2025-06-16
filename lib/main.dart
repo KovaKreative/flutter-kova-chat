@@ -1,8 +1,24 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_kova_chat/providers/auth_provider.dart';
+import 'package:flutter_kova_chat/widgets/auth_gate.dart';
+import 'package:provider/provider.dart';
 
-void main() {
+import 'providers/cart_provider.dart';
+
+var kColorScheme = ColorScheme.fromSeed(
+  seedColor: const Color.fromARGB(255, 30, 113, 90),
+);
+
+var kDarkColorScheme = ColorScheme.fromSeed(
+  brightness: Brightness.dark,
+  seedColor: const Color.fromARGB(255, 71, 36, 152),
+);
+
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(); // You can pass options if not using default config
+
   runApp(const MyApp());
 }
 
@@ -11,88 +27,57 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: PaymentTestScreen());
-  }
-}
-
-class PaymentTestScreen extends StatefulWidget {
-  const PaymentTestScreen({super.key});
-
-  @override
-  State<PaymentTestScreen> createState() => _PaymentTestScreenState();
-}
-
-class _PaymentTestScreenState extends State<PaymentTestScreen> {
-  String? clientSecret;
-  bool isLoading = false;
-  String? error;
-
-  Future<void> createPaymentIntent() async {
-    setState(() {
-      isLoading = true;
-      error = null;
-    });
-
-    final url = Uri.parse(
-      'https://kova-chat-backend.vercel.app/api/create-payment-intent',
-    );
-
-    try {
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'amount': 5000, // amount in cents ($50.00)
-          'currency': 'usd',
-        }),
-      );
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        setState(() {
-          clientSecret = data['clientSecret'];
-        });
-      } else {
-        setState(() {
-          error = 'Failed with status code: ${response.statusCode}';
-        });
-        print('Status code: ${response.statusCode}');
-        print('Response body: ${response.body}');
-      }
-    } catch (e) {
-      setState(() {
-        error = 'Error: $e';
-      });
-    } finally {
-      setState(() {
-        isLoading = false;
-      });
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Stripe Payment Intent Test')),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            if (isLoading) const CircularProgressIndicator(),
-            if (error != null) ...[
-              Text(error!, style: const TextStyle(color: Colors.red)),
-              const SizedBox(height: 16),
-            ],
-            ElevatedButton(
-              onPressed: isLoading ? null : createPaymentIntent,
-              child: const Text('Create Payment Intent'),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+      ],
+      child: MaterialApp(
+        title: 'Kova Chat',
+        darkTheme: ThemeData.dark().copyWith(
+          colorScheme: kDarkColorScheme,
+          appBarTheme: const AppBarTheme().copyWith(
+            backgroundColor: kDarkColorScheme.onPrimary,
+            foregroundColor: kDarkColorScheme.primary,
+            centerTitle: true,
+          ),
+          cardTheme: CardThemeData().copyWith(
+            color: kDarkColorScheme.secondaryContainer,
+            margin: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: kDarkColorScheme.primaryContainer,
             ),
-            const SizedBox(height: 20),
-            if (clientSecret != null)
-              SelectableText('Client Secret:\n$clientSecret'),
-          ],
+          ),
         ),
+        theme: ThemeData().copyWith(
+          // scaffoldBackgroundColor: const Color.fromARGB(255, 193, 175, 255),
+          colorScheme: kColorScheme,
+          appBarTheme: const AppBarTheme().copyWith(
+            backgroundColor: kColorScheme.primary,
+            foregroundColor: kColorScheme.onPrimary,
+            centerTitle: true,
+          ),
+          cardTheme: CardThemeData().copyWith(
+            color: kColorScheme.primaryFixed,
+            margin: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          ),
+          elevatedButtonTheme: ElevatedButtonThemeData(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: kColorScheme.primaryContainer,
+            ),
+          ),
+          textTheme: ThemeData().textTheme.copyWith(
+            bodyMedium: TextStyle(color: kColorScheme.onPrimaryFixed),
+          ),
+          iconTheme: ThemeData().iconTheme.copyWith(
+            color: kColorScheme.onPrimaryFixed,
+          ),
+        ),
+        themeMode: ThemeMode.dark,
+        home: const AuthGate(),
+        debugShowCheckedModeBanner: false,
       ),
     );
   }

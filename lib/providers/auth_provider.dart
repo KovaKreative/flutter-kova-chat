@@ -6,9 +6,10 @@ class AuthProvider with ChangeNotifier {
   String? get username => _username;
   bool get isLoggedIn => _username != null;
 
-  void login(String username) {
+  Future<void> login(String username) async {
     _username = username;
     notifyListeners();
+    return;
   }
 
   void logout() {

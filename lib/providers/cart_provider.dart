@@ -1,50 +1,50 @@
-import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 
 class CartItem {
-  final String id;
-  final String name;
-  final int quantity;
+  final String userId;       // Payee's ID
+  final int priceInCents;    // Price per unit
+  int quantity;              // Number of units
 
-  CartItem({required this.id, required this.name, this.quantity = 1});
+  CartItem({
+    required this.userId,
+    required this.priceInCents,
+    this.quantity = 1,
+  });
 }
 
 class CartProvider with ChangeNotifier {
-  final Map<String, CartItem> _items = {};
+  final Map<String, CartItem> _items = {}; // key: userId
 
   Map<String, CartItem> get items => _items;
 
-  int get itemCount => _items.values.fold(0, (sum, item) => sum + item.quantity);
+  int get totalQuantity =>
+      _items.values.fold(0, (sum, item) => sum + item.quantity);
 
-  void addItem(CartItem item) {
-    if (_items.containsKey(item.id)) {
-      _items[item.id] = CartItem(
-        id: item.id,
-        name: item.name,
-        quantity: _items[item.id]!.quantity + 1,
-      );
+  int get totalPriceInCents =>
+      _items.values.fold(0, (sum, item) => sum + (item.priceInCents * item.quantity));
+
+  void addItem({required String userId, required int priceInCents}) {
+    if (_items.containsKey(userId)) {
+      _items[userId]!.quantity += 1;
     } else {
-      _items[item.id] = item;
+      _items[userId] = CartItem(userId: userId, priceInCents: priceInCents);
     }
     notifyListeners();
   }
 
-  void removeItem(String id) {
-    _items.remove(id);
-    notifyListeners();
-  }
-
-  void updateQuantity(String id, int quantity) {
-    if (_items.containsKey(id)) {
-      _items[id] = CartItem(
-        id: id,
-        name: _items[id]!.name,
-        quantity: quantity,
-      );
+  void updateQuantity(String userId, int quantity) {
+    if (_items.containsKey(userId)) {
+      _items[userId]!.quantity = quantity;
       notifyListeners();
     }
   }
 
-  void clear() {
+  void removeItem(String userId) {
+    _items.remove(userId);
+    notifyListeners();
+  }
+
+  void clearCart() {
     _items.clear();
     notifyListeners();
   }
