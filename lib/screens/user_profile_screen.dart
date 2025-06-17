@@ -1,7 +1,9 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_kova_chat/app/app_messenger.dart';
+import 'package:flutter_kova_chat/providers/auth_provider.dart';
 import 'package:flutter_kova_chat/providers/cart_provider.dart';
-import 'package:flutter_kova_chat/screens/chat_screen.dart';
+import 'package:flutter_kova_chat/screens/chat_session_screen.dart';
 import 'package:provider/provider.dart';
 
 class UserProfileScreen extends StatelessWidget {
@@ -16,16 +18,16 @@ class UserProfileScreen extends StatelessWidget {
         .limit(1)
         .get();
 
-    if (query.docs.isNotEmpty) {
-      return query.docs.first;
+    if (query.docs.isEmpty) {
+      return null;
     }
-
-    return null;
+    return query.docs.first;
   }
 
   @override
   Widget build(BuildContext context) {
     final cart = context.watch<CartProvider>();
+    var currentUser = context.watch<AuthProvider>().user!;
 
     return Scaffold(
       appBar: AppBar(title: Text(user)),
@@ -55,9 +57,7 @@ class UserProfileScreen extends StatelessWidget {
                 ElevatedButton.icon(
                   onPressed: () {
                     cart.addItem(user: user, priceInCents: price);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Added $user to cart')),
-                    );
+                    AppMessenger.show('Added $user to cart');
                   },
                   icon: Icon(Icons.add_shopping_cart),
                   label: Text('Add to Cart'),
@@ -68,7 +68,10 @@ class UserProfileScreen extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (_) => ChatScreen(/*peerUsername: user*/),
+                        builder: (_) => ChatSessionScreen(
+                          currentUser: currentUser,
+                          otherUser: user,
+                        ),
                       ),
                     );
                   },
