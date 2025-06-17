@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_kova_chat/providers/auth_provider.dart';
 import 'package:flutter_kova_chat/widgets/auth_gate.dart';
 import 'package:provider/provider.dart';
 
 import 'providers/cart_provider.dart';
+
+import 'app/app_messenger.dart';
 
 var kColorScheme = ColorScheme.fromSeed(
   seedColor: const Color.fromARGB(255, 30, 113, 90),
@@ -16,6 +19,10 @@ var kDarkColorScheme = ColorScheme.fromSeed(
 );
 
 void main() async {
+  const env = String.fromEnvironment('ENV', defaultValue: 'dev');
+
+  await dotenv.load(fileName: env == 'prod' ? '.env.production' : '.env');
+
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(); // You can pass options if not using default config
 
@@ -33,6 +40,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
       ],
       child: MaterialApp(
+        scaffoldMessengerKey: AppMessenger.messengerKey,
         title: 'Kova Chat',
         darkTheme: ThemeData.dark().copyWith(
           colorScheme: kDarkColorScheme,

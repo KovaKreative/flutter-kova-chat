@@ -1,21 +1,29 @@
 import 'package:flutter/material.dart';
 
 class CartItem {
-  final String user; // Payee's ID
-  final int priceInCents; // Price per unit
-  int quantity; // Number of units
+  final String user; // This will be replaced with the Stripe ID at checkout
+  final int priceInCents;
+  int quantity;
 
-  CartItem({
-    required this.user,
-    required this.priceInCents,
-    this.quantity = 1,
-  });
+  CartItem({required this.user, required this.priceInCents, this.quantity = 1});
+
+  Map<String, dynamic> toJson() {
+    return {'user': user, 'priceInCents': priceInCents, 'quantity': quantity};
+  }
+
+  factory CartItem.fromJson(Map<String, dynamic> json) {
+    return CartItem(
+      user: json['user'],
+      priceInCents: json['priceInCents'],
+      quantity: json['quantity'] ?? 1,
+    );
+  }
 }
 
 class CartProvider with ChangeNotifier {
-  final Map<String, CartItem> _items = {}; // key: userId
+  final Map<String, CartItem> _items = {};
 
-  Map<String, CartItem> get items => _items;
+  List<CartItem> get items => _items.values.toList();
 
   int get totalQuantity =>
       _items.values.fold(0, (sum, item) => sum + item.quantity);
@@ -29,23 +37,20 @@ class CartProvider with ChangeNotifier {
     if (_items.containsKey(user)) {
       _items[user]!.quantity += 1;
     } else {
-      _items[user] = CartItem(
-        user: user,
-        priceInCents: priceInCents,
-      );
+      _items[user] = CartItem(user: user, priceInCents: priceInCents);
     }
     notifyListeners();
   }
 
-  void updateQuantity(String userId, int quantity) {
-    if (_items.containsKey(userId)) {
-      _items[userId]!.quantity = quantity;
+  void updateQuantity(String user, int quantity) {
+    if (_items.containsKey(user)) {
+      _items[user]!.quantity = quantity;
       notifyListeners();
     }
   }
 
-  void removeItem(String userId) {
-    _items.remove(userId);
+  void removeItem(String user) {
+    _items.remove(user);
     notifyListeners();
   }
 
