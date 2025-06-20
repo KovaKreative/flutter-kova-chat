@@ -55,31 +55,27 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
   @override
   Widget build(BuildContext context) {
     // String? chatId = widget.chatId;
-    if (chatId == null) {
-      return Scaffold(
-        appBar: AppBar(title: Text("Chat with ${widget.otherUser}")),
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
 
     return Scaffold(
-      appBar: AppBar(title: Text(widget.otherUser)),
-      body: Column(
-        children: [
-          Expanded(
-            child: MessageList(
-              currentUser: widget.currentUser,
-              otherUser: widget.otherUser,
-              chatId: chatId!,
+      appBar: AppBar(title: Text("Chat with ${widget.otherUser}")),
+      body: chatId == null
+          ? Center(child: CircularProgressIndicator())
+          : Column(
+              children: [
+                Expanded(
+                  child: MessageList(
+                    currentUser: widget.currentUser,
+                    otherUser: widget.otherUser,
+                    chatId: chatId!,
+                  ),
+                ),
+                MessageInput(
+                  currentUser: widget.currentUser,
+                  otherUser: widget.otherUser,
+                  chatId: chatId!,
+                ),
+              ],
             ),
-          ),
-          MessageInput(
-            currentUser: widget.currentUser,
-            otherUser: widget.otherUser,
-            chatId: chatId!,
-          ),
-        ],
-      ),
     );
   }
 }

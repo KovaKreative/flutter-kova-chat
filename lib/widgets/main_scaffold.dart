@@ -7,6 +7,13 @@ import 'package:flutter_kova_chat/screens/settings_screen.dart';
 
 import 'package:provider/provider.dart';
 
+class TabItem {
+  final String title;
+  final Widget page;
+
+  TabItem({required this.title, required this.page});
+}
+
 class MainScaffold extends StatefulWidget {
   const MainScaffold({super.key});
 
@@ -17,43 +24,23 @@ class MainScaffold extends StatefulWidget {
 class _MainScaffoldState extends State<MainScaffold> {
   int _currentIndex = 0;
 
-  final List<GlobalKey<NavigatorState>> _navigatorKeys = [
-    GlobalKey<NavigatorState>(), // Home
-    GlobalKey<NavigatorState>(), // Chat
-    GlobalKey<NavigatorState>(), // Cart
-    GlobalKey<NavigatorState>(), // Profile
+  final List<TabItem> _tabs = [
+    TabItem(title: 'Home', page: const HomeScreen()),
+    TabItem(title: 'Chat', page: ChatListScreen()),
+    TabItem(title: 'Cart', page: CheckoutScreen()),
+    TabItem(title: 'Profile', page: const SettingsScreen()),
   ];
 
   void _onTap(int index) {
-    if (index == _currentIndex) {
-      _navigatorKeys[index].currentState?.popUntil((route) => route.isFirst);
-    } else {
-      setState(() => _currentIndex = index);
-    }
-  }
-
-  Widget _buildOffstageNavigator(int index, Widget child) {
-    return Offstage(
-      offstage: _currentIndex != index,
-      child: Navigator(
-        key: _navigatorKeys[index],
-        onGenerateRoute: (settings) => MaterialPageRoute(builder: (_) => child),
-      ),
-    );
+    setState(() => _currentIndex = index);
   }
 
   @override
   Widget build(BuildContext context) {
     final count = context.watch<CartProvider>().totalQuantity;
     return Scaffold(
-      body: Stack(
-        children: [
-          _buildOffstageNavigator(0, const HomeScreen()),
-          _buildOffstageNavigator(1, ChatListScreen()),
-          _buildOffstageNavigator(2, CheckoutScreen()),
-          _buildOffstageNavigator(3, const SettingsScreen()),
-        ],
-      ),
+      appBar: AppBar(title: Text(_tabs[_currentIndex].title)),
+      body: _tabs[_currentIndex].page,
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: _onTap,
@@ -76,10 +63,16 @@ class _MainScaffoldState extends State<MainScaffold> {
                         color: Colors.red,
                         shape: BoxShape.circle,
                       ),
-                      constraints: const BoxConstraints(minWidth: 18, minHeight: 18),
+                      constraints: const BoxConstraints(
+                        minWidth: 18,
+                        minHeight: 18,
+                      ),
                       child: Text(
                         '$count',
-                        style: const TextStyle(color: Colors.white, fontSize: 10),
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                     ),
