@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -19,11 +20,10 @@ var kDarkColorScheme = ColorScheme.fromSeed(
 );
 
 void main() async {
-  const env = String.fromEnvironment('ENV', defaultValue: 'dev');
-
-  await dotenv.load(fileName: env == 'prod' ? '.env.production' : '.env');
-
   WidgetsFlutterBinding.ensureInitialized();
+
+  await dotenv.load(fileName: kReleaseMode ? ".env.production" : ".env");
+
   await Firebase.initializeApp(); // You can pass options if not using default config
 
   runApp(const MyApp());
