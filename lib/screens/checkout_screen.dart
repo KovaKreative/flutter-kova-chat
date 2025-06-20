@@ -21,7 +21,7 @@ class CheckoutScreen extends StatelessWidget {
     return {for (var doc in snapshot.docs) doc['user']: doc['stripe_id']};
   }
 
-  Future<void> _handleCheckout(
+  Future<bool> _handleCheckout(
     String currentUser,
     List<CartItem> cartItems,
   ) async {
@@ -56,7 +56,6 @@ class CheckoutScreen extends StatelessWidget {
 
     try {
       final url = Uri.parse('${dotenv.env['API_URL']}/api/checkout');
-      print(url);
       // final url = Uri.parse(
       //   '/api/checkout',
       // );
@@ -88,8 +87,10 @@ class CheckoutScreen extends StatelessWidget {
       });
 
       AppMessenger.show("Payment processed successfully!");
+      return true;
     } catch (e) {
-      AppMessenger.show("Something went wrong. Couldn't process payment.");
+      AppMessenger.show(e.toString());
+      return false;
     }
   }
 
@@ -143,10 +144,11 @@ class CheckoutScreen extends StatelessWidget {
           ElevatedButton(
             onPressed: cartItems.isEmpty
                 ? null
-                : () => _handleCheckout(
-                    currentUser!,
-                    cartItems,
-                  ).then((_) => cartProvider.clearCart()),
+                : () => _handleCheckout(currentUser!, cartItems).then(
+                    (r) => {
+                      if (r) {cartProvider.clearCart()},
+                    },
+                  ),
             child: Text('Checkout'),
           ),
         ],

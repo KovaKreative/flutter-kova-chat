@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CartItem {
-  final String user; // This will be replaced with the Stripe ID at checkout
+  final String user;
   final int priceInCents;
   int quantity;
 
