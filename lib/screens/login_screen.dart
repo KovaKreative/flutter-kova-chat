@@ -8,11 +8,11 @@ class LoginScreen extends StatefulWidget {
 
   @override
   State<LoginScreen> createState() {
-    return _NewLoginScreenState();
+    return _LoginScreenState();
   }
 }
 
-class _NewLoginScreenState extends State<LoginScreen> {
+class _LoginScreenState extends State<LoginScreen> {
   final _controller = TextEditingController();
 
   @override

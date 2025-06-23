@@ -33,12 +33,8 @@ class CheckoutScreen extends StatelessWidget {
 
     final ourStripeId = doc.docs.first.data()['stripe_id'] as String;
 
-    // final cartProvider = context.read<CartProvider>();
-    // final cartItems = cartProvider.items;
-
     final usernames = cartItems.map((item) => item.user).toSet().toList();
     final stripeIdsMap = await fetchStripeIds(usernames);
-
     final payload = {
       "items": cartItems
           .map(
@@ -49,17 +45,11 @@ class CheckoutScreen extends StatelessWidget {
             },
           )
           .toList(),
-      "payer_stripe_id": ourStripeId, // fetch this too, as you said
+      "payer_stripe_id": ourStripeId,
     };
-
-    // Now build your payment payload using stripeIdsMap and cart items
 
     try {
       final url = Uri.parse('${dotenv.env['API_URL']}/api/checkout');
-      // final url = Uri.parse(
-      //   '/api/checkout',
-      // );
-
       final response = await http.post(
         url,
         headers: {"Content-Type": "application/json"},
@@ -83,7 +73,7 @@ class CheckoutScreen extends StatelessWidget {
             .toList(),
         'paymentIntentId': responseData['paymentIntentId'],
         'timestamp': FieldValue.serverTimestamp(),
-        'status': 'pending', // or 'completed' if confirmed
+        'status': 'pending',
       });
 
       AppMessenger.show("Payment processed successfully!");

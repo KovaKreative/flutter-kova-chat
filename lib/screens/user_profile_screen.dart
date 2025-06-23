@@ -43,7 +43,8 @@ class UserProfileScreen extends StatelessWidget {
           }
 
           final userData = snapshot.data!.data() as Map<String, dynamic>;
-          final price = userData['price'] ?? 0.0;
+          final price = (userData['price'] ?? 0.0) as int;
+          final priceInDollars = price / 100;
 
           return Padding(
             padding: const EdgeInsets.all(16),
@@ -52,7 +53,7 @@ class UserProfileScreen extends StatelessWidget {
               children: [
                 Text('Username: $user', style: TextStyle(fontSize: 18)),
                 SizedBox(height: 8),
-                Text('Price: \$${price.toStringAsFixed(2)}'),
+                Text('Price: \$${priceInDollars.toStringAsFixed(2)}'),
                 SizedBox(height: 24),
                 ElevatedButton.icon(
                   onPressed: () {
