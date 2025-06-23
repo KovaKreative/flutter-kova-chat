@@ -12,27 +12,32 @@ class ChatListScreen extends StatelessWidget {
     final currentUser = context.watch<AuthProvider>().user!;
     final firestore = FirebaseFirestore.instance;
 
-    return Scaffold(
-      appBar: AppBar(title: Text("Chats")),
-      body: StreamBuilder<QuerySnapshot>(
-        stream: firestore
-            .collection('chats')
-            .where('users', arrayContains: currentUser)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) return CircularProgressIndicator();
+    return StreamBuilder<QuerySnapshot>(
+      stream: firestore
+          .collection('chats')
+          .where('users', arrayContains: currentUser)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) return CircularProgressIndicator();
 
-          final chats = snapshot.data!.docs;
+        final chats = snapshot.data!.docs;
 
-          return ListView.builder(
-            itemCount: chats.length,
-            itemBuilder: (context, index) {
-              final chat = chats[index];
-              final users = List<String>.from(chat['users']);
-              final otherUser = users.firstWhere((u) => u != currentUser);
+        return ListView.builder(
+          itemCount: chats.length,
+          itemBuilder: (context, index) {
+            final chat = chats[index];
+            final users = List<String>.from(chat['users']);
+            final otherUser = users.firstWhere((u) => u != currentUser);
 
-              return ListTile(
-                title: Text(otherUser),
+            return Card(
+              margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: ListTile(
+                leading: Icon(Icons.chat),
+                title: Text("Chat with $otherUser"),
                 onTap: () {
                   Navigator.push(
                     context,
@@ -45,11 +50,11 @@ class ChatListScreen extends StatelessWidget {
                     ),
                   );
                 },
-              );
-            },
-          );
-        },
-      ),
+              ),
+            );
+          },
+        );
+      },
     );
   }
 }

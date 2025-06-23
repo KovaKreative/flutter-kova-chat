@@ -100,59 +100,56 @@ class CheckoutScreen extends StatelessWidget {
     final cartItems = cartProvider.items;
     final currentUser = context.watch<AuthProvider>().user;
 
-    return Scaffold(
-      appBar: AppBar(title: Text('Checkout')),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: cartItems.length,
-              itemBuilder: (context, index) {
-                final item = cartItems[index];
-                return ListTile(
-                  title: Text(item.user),
-                  subtitle: Text(
-                    '\$${(item.priceInCents / 100).toStringAsFixed(2)} x ${item.quantity}',
-                  ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.remove),
-                        onPressed: () => cartProvider.updateQuantity(
-                          item.user,
-                          item.quantity - 1,
-                        ),
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.builder(
+            itemCount: cartItems.length,
+            itemBuilder: (context, index) {
+              final item = cartItems[index];
+              return ListTile(
+                title: Text(item.user),
+                subtitle: Text(
+                  '\$${(item.priceInCents / 100).toStringAsFixed(2)} x ${item.quantity}',
+                ),
+                trailing: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: Icon(Icons.remove),
+                      onPressed: () => cartProvider.updateQuantity(
+                        item.user,
+                        item.quantity - 1,
                       ),
-                      IconButton(
-                        icon: Icon(Icons.add),
-                        onPressed: () => cartProvider.updateQuantity(
-                          item.user,
-                          item.quantity + 1,
-                        ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.add),
+                      onPressed: () => cartProvider.updateQuantity(
+                        item.user,
+                        item.quantity + 1,
                       ),
-                      IconButton(
-                        icon: Icon(Icons.delete),
-                        onPressed: () => cartProvider.removeItem(item.user),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.delete),
+                      onPressed: () => cartProvider.removeItem(item.user),
+                    ),
+                  ],
+                ),
+              );
+            },
           ),
-          ElevatedButton(
-            onPressed: cartItems.isEmpty
-                ? null
-                : () => _handleCheckout(currentUser!, cartItems).then(
-                    (r) => {
-                      if (r) {cartProvider.clearCart()},
-                    },
-                  ),
-            child: Text('Checkout'),
-          ),
-        ],
-      ),
+        ),
+        ElevatedButton(
+          onPressed: cartItems.isEmpty
+              ? null
+              : () => _handleCheckout(currentUser!, cartItems).then(
+                  (r) => {
+                    if (r) {cartProvider.clearCart()},
+                  },
+                ),
+          child: Text('Checkout'),
+        ),
+      ],
     );
   }
 }

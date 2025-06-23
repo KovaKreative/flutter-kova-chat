@@ -26,8 +26,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
     final fetched = snapshot.docs
         .where((doc) => doc['user'] != currentUsername)
-        .map((doc) => doc['user'])
         .toList();
+    // .map((doc) => doc['user'])
 
     setState(() {
       users = fetched;
@@ -40,14 +40,29 @@ class _HomeScreenState extends State<HomeScreen> {
       itemCount: users.length,
       itemBuilder: (context, index) {
         final user = users[index];
-        return ListTile(
-          title: Text(user),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => UserProfileScreen(user: user)),
-            );
-          },
+        Timestamp createdAt = user["createdAt"];
+        DateTime d = createdAt.toDate();
+        String memberSince = '${d.day}/${d.month}/${d.year}';
+
+        return Card(
+          margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          elevation: 10,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: ListTile(
+            leading: Icon(Icons.person),
+            title: Text(user["user"]),
+            subtitle: Text("Member since $memberSince"),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => UserProfileScreen(user: user["user"]),
+                ),
+              );
+            },
+          ),
         );
       },
     );
