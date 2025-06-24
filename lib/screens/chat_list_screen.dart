@@ -22,38 +22,45 @@ class ChatListScreen extends StatelessWidget {
 
         final chats = snapshot.data!.docs;
 
-        return ListView.builder(
-          itemCount: chats.length,
-          itemBuilder: (context, index) {
-            final chat = chats[index];
-            final users = List<String>.from(chat['users']);
-            final otherUser = users.firstWhere((u) => u != currentUser);
+        return chats.length > 0
+            ? ListView.builder(
+                itemCount: chats.length,
+                itemBuilder: (context, index) {
+                  final chat = chats[index];
+                  final users = List<String>.from(chat['users']);
+                  final otherUser = users.firstWhere((u) => u != currentUser);
 
-            return Card(
-              margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              elevation: 2,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: ListTile(
-                leading: Icon(Icons.chat),
-                title: Text("Chat with $otherUser"),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => ChatSessionScreen(
-                        currentUser: currentUser,
-                        otherUser: otherUser,
-                        chatId: chat.id,
-                      ),
+                  return Card(
+                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    elevation: 2,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: ListTile(
+                      leading: Icon(Icons.chat),
+                      title: Text("Chat with $otherUser"),
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ChatSessionScreen(
+                              currentUser: currentUser,
+                              otherUser: otherUser,
+                              chatId: chat.id,
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   );
                 },
-              ),
-            );
-          },
-        );
+              )
+            : Center(
+                child: Text(
+                  'No existing chats.\nPick a user from the Home menu and say hi!',
+                  textAlign: TextAlign.center,
+                ),
+              );
       },
     );
   }

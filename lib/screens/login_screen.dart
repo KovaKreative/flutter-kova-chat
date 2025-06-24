@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_kova_chat/app/app_messenger.dart';
 import 'package:flutter_kova_chat/providers/auth_provider.dart';
@@ -37,6 +38,48 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+  void _handleRegister() async {
+    final user = _controller.text.trim();
+    if (user.isEmpty) {
+      AppMessenger.show("Please enter a username.");
+    }
+
+    final auth = context.read<AuthProvider>();
+    try {
+      final existingUser = await FirebaseFirestore.instance
+          .collection('users')
+          .where('user', isEqualTo: user)
+          .limit(1)
+          .get();
+
+      if (existingUser.docs.isNotEmpty) {
+        // Username is already taken
+        throw Exception('Username already exists');
+      }
+
+      await FirebaseFirestore.instance.collection('users').add({
+        'user': user,
+        'price': 0,
+        'stripe_id': "12345",
+        'createdAt': DateTime.now(),
+      });
+
+      bool success = await auth.login(user);
+      if (!success) {
+        AppMessenger.show(
+          "User created, but unable to log in. Try logging in again.",
+        );
+      }
+    } catch (e) {
+      if (e is FirebaseException) {
+        AppMessenger.show('Firebase error: ${e.message}');
+        return;
+      }
+
+      AppMessenger.show('An error occurred: ${e.toString()}');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,7 +95,19 @@ class _LoginScreenState extends State<LoginScreen> {
               onSubmitted: (_) => _handleLogin(),
             ),
             const SizedBox(height: 16),
-            ElevatedButton(onPressed: _handleLogin, child: const Text('Login')),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: _handleLogin,
+                  child: const Text('Login'),
+                ),
+                ElevatedButton(
+                  onPressed: _handleRegister,
+                  child: const Text('Create New Account'),
+                ),
+              ],
+            ),
           ],
         ),
       ),
