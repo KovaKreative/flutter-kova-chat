@@ -1,17 +1,3 @@
-# flutter_kova_chat
+# Flutter Kova Chat
 
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-# flutter-kova-chat
+A light weight chat app with Stripe payment processing and zero security. Created strictly as a tech demo, and not to be used as a legitimate chat application.
