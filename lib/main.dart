@@ -24,7 +24,7 @@ void main() async {
 
   await dotenv.load(fileName: kReleaseMode ? ".env.production" : ".env");
 
-  await Firebase.initializeApp(); // You can pass options if not using default config
+  await Firebase.initializeApp();
 
   runApp(const MyApp());
 }
@@ -60,7 +60,6 @@ class MyApp extends StatelessWidget {
           ),
         ),
         theme: ThemeData().copyWith(
-          // scaffoldBackgroundColor: const Color.fromARGB(255, 193, 175, 255),
           colorScheme: kColorScheme,
           appBarTheme: const AppBarTheme().copyWith(
             backgroundColor: kColorScheme.primary,

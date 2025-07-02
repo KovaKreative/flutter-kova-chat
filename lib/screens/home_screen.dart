@@ -27,7 +27,6 @@ class _HomeScreenState extends State<HomeScreen> {
     final fetched = snapshot.docs
         .where((doc) => doc['user'] != currentUsername)
         .toList();
-    // .map((doc) => doc['user'])
 
     setState(() {
       users = fetched;

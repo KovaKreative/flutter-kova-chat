@@ -54,7 +54,6 @@ class _ChatSessionScreenState extends State<ChatSessionScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // String? chatId = widget.chatId;
 
     return Scaffold(
       appBar: AppBar(title: Text("Chat with ${widget.otherUser}")),

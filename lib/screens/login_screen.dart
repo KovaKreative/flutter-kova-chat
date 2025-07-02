@@ -33,7 +33,6 @@ class _LoginScreenState extends State<LoginScreen> {
         AppMessenger.show("Unable to log in.");
       }
     } catch (e) {
-      // In case of any unexpected error
       AppMessenger.show('An error occurred: ${e.toString()}');
     }
   }
